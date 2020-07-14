@@ -1,10 +1,15 @@
+use alloc::string::String;
+use alloc::vec::Vec;
+
 use crate::action::Action;
 use crate::amount_limit::AmountLimit;
 use crate::signature::Signature;
 use iost_derive::{Read, Write};
-use serde::{Serialize, Deserialize};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone ,Default, Serialize, Deserialize, Debug, Write, Read)]
+#[derive(Clone, Default, Debug, Write, Read)]
+#[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
 #[iost_root_path = "crate"]
 pub struct Tx {
     /// Time of transaction. Unixepoch start in nanoseconds
@@ -30,7 +35,7 @@ pub struct Tx {
     /// Signer ID other than publisher. It can be empty.
     pub signers: Vec<String>,
     /// Signature of signers. Each signer can have one or more signatures, so the length is not less than the length of signers
-    pub signatures: Vec<Signature>
+    pub signatures: Vec<Signature>,
 }
 
 #[cfg(test)]

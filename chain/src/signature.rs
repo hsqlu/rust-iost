@@ -1,19 +1,21 @@
 #![allow(unconditional_recursion)]
-use serde::{Serialize, Deserialize, Serializer};
-use iost_derive::{Read, Write};
-use std::str::FromStr;
+use alloc::string::{String, ToString};
+
 use crate::Error;
+use iost_derive::{Read, Write};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize, Serializer};
+use core::str::FromStr;
 
-#[derive(Clone ,Default, Debug, Write, Read)]
+#[derive(Clone, Default, Debug, Write, Read)]
 #[iost_root_path = "crate"]
-
 pub struct Signature {
     /// Encryption algorithm. Currently only "ed25519" and "secp256k1" are supported
     pub algorithm: String,
     /// After the contract is serialized, Sha3 is used for hash, and then private key is used for signature. Base64 encoding. See corresponding documents for details
     pub signature: String,
     /// The public key used by this signature. Base64 encoding
-    pub public_key: String
+    pub public_key: String,
 }
 
 impl Signature {
@@ -28,18 +30,21 @@ impl Signature {
     }
 }
 
+#[cfg(feature = "std")]
 impl Serialize for Signature {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         serializer.serialize_str(&self.algorithm)
     }
 }
 
+#[cfg(feature = "std")]
 impl<'de> serde::Deserialize<'de> for Signature {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: serde::de::Deserializer<'de>
+    where
+        D: serde::de::Deserializer<'de>,
     {
         #[derive(Debug)]
         struct VisitorSignature;
@@ -51,7 +56,8 @@ impl<'de> serde::Deserialize<'de> for Signature {
             }
 
             fn visit_map<D>(self, mut map: D) -> Result<Self::Value, D::Error>
-                where D: serde::de::MapAccess<'de>,
+            where
+                D: serde::de::MapAccess<'de>,
             {
                 while let Some(field) = map.next_key()? {
                     match field {
@@ -62,7 +68,7 @@ impl<'de> serde::Deserialize<'de> for Signature {
                             let _signature = map.next_value()?;
                         }
                         "public_key" => {
-                            let _public_key= map.next_value()?;
+                            let _public_key = map.next_value()?;
                         }
                         _ => {
                             let _: serde_json::Value = map.next_value()?;
@@ -70,14 +76,13 @@ impl<'de> serde::Deserialize<'de> for Signature {
                         }
                     }
                 }
-                let signature = Signature{
+                let signature = Signature {
                     algorithm: "".to_string(),
                     signature: "".to_string(),
-                    public_key: "".to_string()
+                    public_key: "".to_string(),
                 };
                 Ok(signature)
             }
-
         }
         deserializer.deserialize_any(VisitorSignature)
     }
@@ -87,10 +92,10 @@ impl FromStr for Signature {
     type Err = Error;
 
     fn from_str(_s: &str) -> Result<Self, Self::Err> {
-        Ok(Signature{
+        Ok(Signature {
             algorithm: "".to_string(),
             signature: "".to_string(),
-            public_key: "".to_string()
+            public_key: "".to_string(),
         })
     }
 }

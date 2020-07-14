@@ -1,7 +1,9 @@
-use crate::bytes::{Read, Write, WriteError, NumberBytes, ReadError};
-use serde::{Serialize, Deserialize};
+use crate::bytes::{NumberBytes, Read, ReadError, Write, WriteError};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct UnsignedInt(u32);
 
 impl From<usize> for UnsignedInt {
@@ -69,11 +71,7 @@ impl Read for UnsignedInt {
 
 impl Write for UnsignedInt {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         let mut val = u64::from(self.0);
         loop {
             let mut b = (val as u8) & 0x7f;
@@ -93,7 +91,6 @@ impl core::fmt::Display for UnsignedInt {
         write!(f, "{}", self.0)
     }
 }
-
 
 //macro_rules! write_read_tests {
 //    ($($i:ident, $v:expr, $n:expr)*) => ($(

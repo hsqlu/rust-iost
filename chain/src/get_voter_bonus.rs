@@ -1,17 +1,26 @@
-use alloc::collections::BTreeMap;
+use alloc::format;
+use alloc::string::String;
+
 use crate::error::Error;
 use crate::message::ErrorMessage;
-use serde::{Deserialize};
+use alloc::collections::BTreeMap;
+#[cfg(feature = "std")]
+use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Deserialize))]
 pub struct VoterBonus {
     /// the total voting bonus he can receive
     pub bonus: f64,
     /// the bonus from every candidate
-    pub detail: BTreeMap<String,f64>
+    pub detail: BTreeMap<String, f64>,
 }
 
-async fn get_voter_bonus(domain: &str, name: &str, by_longest_chain: bool) -> Result<VoterBonus, Error> {
+async fn get_voter_bonus(
+    domain: &str,
+    name: &str,
+    by_longest_chain: bool,
+) -> Result<VoterBonus, Error> {
     let url = format!("{}/getVoterBonus/{}/{}", domain, name, by_longest_chain);
     let req = reqwest::get(&url).await.map_err(Error::Reqwest)?;
     if req.status() == 200 {
@@ -33,4 +42,3 @@ mod test {
         assert!(response.is_ok());
     }
 }
-

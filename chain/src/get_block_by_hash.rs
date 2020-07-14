@@ -1,10 +1,14 @@
+use alloc::format;
+
 use crate::block::Block;
 use crate::error::Error;
 use crate::message::ErrorMessage;
 use crate::status::Status;
-use serde::{Serialize, Deserialize};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct BlockByHash {
     /// PENDING - block is in cache; IRREVERSIBLE - block is irreversible.
     pub status: Status,
@@ -12,7 +16,8 @@ pub struct BlockByHash {
     pub block: Block
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct BlockByNumber {
     /// PENDING - block is in cache; IRREVERSIBLE - block is irreversible.
     pub status: Status,

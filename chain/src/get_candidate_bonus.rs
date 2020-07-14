@@ -1,14 +1,22 @@
+use alloc::format;
+
 use crate::error::Error;
 use crate::message::ErrorMessage;
-use serde::{Serialize, Deserialize};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct CandidateBonus {
     /// the bonus he can receive
-    pub bonus: f64
+    pub bonus: f64,
 }
 
-async fn get_candidate_bonus(domain: &str, name: &str, by_longest_chain: bool) -> Result<CandidateBonus, Error> {
+async fn get_candidate_bonus(
+    domain: &str,
+    name: &str,
+    by_longest_chain: bool,
+) -> Result<CandidateBonus, Error> {
     let url = format!("{}/getCandidateBonus/{}/{}", domain, name, by_longest_chain);
     let req = reqwest::get(&url).await.map_err(Error::Reqwest)?;
     if req.status() == 200 {
@@ -26,7 +34,7 @@ mod test {
 
     #[tokio::test]
     async fn get_candidate_bonus_should_be_ok() {
-        let response = get_candidate_bonus("http://api.iost.io","erebus",true).await;
+        let response = get_candidate_bonus("http://api.iost.io", "erebus", true).await;
         assert!(response.is_ok());
     }
 }

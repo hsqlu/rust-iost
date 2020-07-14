@@ -1,29 +1,35 @@
-use crate::error::Error;
-use serde::{Serialize, Deserialize};
+use alloc::string::String;
+use alloc::vec::Vec;
 
-#[derive(Serialize)]
+use crate::error::Error;
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
+#[cfg_attr(feature = "std", derive(Serialize))]
 pub struct ContractStorageFieldsPost {
     /// ID of the smart contract
     pub id: String,
     /// the key of StateDB
-    pub key: String,
     /// true - get data from the longest chain; false - get data from irreversible blocks
-    pub by_longest_chain: bool
+    pub key: String,
+    pub by_longest_chain: bool,
 }
 
-#[derive(Deserialize,Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Deserialize))]
 pub struct ContractStorageFields {
-
-    pub fields: Vec<String>
-
+    pub fields: Vec<String>,
 }
 
-async fn get_contract_storage_fields(new_post: ContractStorageFieldsPost) -> Result<ContractStorageFields, Error> {
+async fn get_contract_storage_fields(
+    new_post: ContractStorageFieldsPost,
+) -> Result<ContractStorageFields, Error> {
     let req = reqwest::Client::new()
         .post("http://api.iost.io/getContractStorageFields")
         .json(&new_post)
         .send()
-        .await.map_err(Error::Reqwest)?;
+        .await
+        .map_err(Error::Reqwest)?;
 
     let status_code = req.status();
 
@@ -45,12 +51,10 @@ mod test {
         let new_post = ContractStorageFieldsPost {
             id: "token.iost".to_string(),
             key: "TIiost".to_string(),
-            by_longest_chain: true
+            by_longest_chain: true,
         };
 
         let res = get_contract_storage_fields(new_post).await;
         assert!(res.is_ok());
     }
 }
-
-

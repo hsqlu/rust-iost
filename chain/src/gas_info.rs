@@ -1,7 +1,11 @@
-use crate::pledge_info::PledgeInfo;
-use serde::{Serialize, Deserialize};
+use alloc::vec::Vec;
 
-#[derive(Serialize, Deserialize, Debug)]
+use crate::pledge_info::PledgeInfo;
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct GasInfo {
     /// Total gas for the moment
     pub current_total: f64,
@@ -14,5 +18,5 @@ pub struct GasInfo {
     /// The upper limit of gas from token deposit
     pub limit: f64,
     /// The information on deposit made by other accounts, on behalf of the inquired account
-    pub pledged_info: Vec<PledgeInfo>
+    pub pledged_info: Vec<PledgeInfo>,
 }

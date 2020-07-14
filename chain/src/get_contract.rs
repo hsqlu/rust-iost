@@ -1,9 +1,14 @@
+use alloc::format;
+use alloc::string::String;
+use alloc::vec::Vec;
+
 use crate::abi::ABI;
 use crate::error::Error;
 use crate::message::ErrorMessage;
-use serde::{Deserialize};
+#[cfg(feature = "std")]
+use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[cfg_attr(feature = "std", derive(Debug, Deserialize))]
 pub struct Contract {
     /// contract ID
     pub id: String,
@@ -14,7 +19,7 @@ pub struct Contract {
     /// contract version
     pub version: String,
     /// the ABIs of the contract
-    pub abis: Vec<ABI>
+    pub abis: Vec<ABI>,
 }
 
 async fn get_contract(domain: &str, id: &str, by_longest_chain: bool) -> Result<Contract, Error> {
@@ -35,7 +40,7 @@ mod test {
 
     #[tokio::test]
     async fn get_contract_should_be_ok() {
-        let response = get_contract("http://api.iost.io","base.iost",true).await;
+        let response = get_contract("http://api.iost.io", "base.iost", true).await;
         assert!(response.is_ok());
     }
 }

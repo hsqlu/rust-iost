@@ -1,3 +1,8 @@
+use alloc::collections::btree_map::BTreeMap;
+use alloc::format;
+use alloc::string::String;
+use alloc::vec::Vec;
+
 use crate::error::Error;
 use crate::frozen_balance::FrozenBalance;
 use crate::gas_info::GasInfo;
@@ -6,10 +11,11 @@ use crate::message::ErrorMessage;
 use crate::permission::Permission;
 use crate::ram_info::RAMInfo;
 use crate::vote_info::VoteInfo;
-use std::collections::HashMap;
-use serde::{Deserialize};
+#[cfg(feature = "std")]
+use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Deserialize))]
 pub struct Account {
     /// account name
     pub name: String,
@@ -20,13 +26,13 @@ pub struct Account {
     /// Ram information
     pub ram_info: RAMInfo,
     /// permissions
-    pub permissions: HashMap<String, Permission>,
+    pub permissions: BTreeMap<String, Permission>,
     /// permission groups
-    pub groups: HashMap<String, Group>,
+    pub groups: BTreeMap<String, Group>,
     /// information on the frozen balance
     pub frozen_balances: Vec<FrozenBalance>,
     /// information of vote
-    pub vote_infos: Vec<VoteInfo>
+    pub vote_infos: Vec<VoteInfo>,
 }
 
 async fn get_account(domain: &str, account: &str, complete: bool) -> Result<Account, Error> {
@@ -47,8 +53,7 @@ mod test {
 
     #[tokio::test]
     async fn get_account_should_be_ok() {
-        let response = get_account("http://api.iost.io","admin",true).await;
+        let response = get_account("http://api.iost.io", "admin", true).await;
         assert!(response.is_ok());
     }
 }
-

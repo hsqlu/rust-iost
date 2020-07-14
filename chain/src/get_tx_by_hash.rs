@@ -1,17 +1,22 @@
+use alloc::string::String;
+use alloc::format;
+
 use crate::error::Error;
 use crate::message::ErrorMessage;
 use crate::status::Status;
 use crate::transaction::Transaction;
-use serde::{Serialize, Deserialize};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub struct GetTxByHash {
     /// enum PENDING- transaction is cached, PACKED - transaction is in reversible blocks, IRREVERSIBLE - transaction is in irreversible blocks
     pub status: Status,
     /// Transaction data
     pub transaction: Transaction,
     /// the number of the block which the tx is in
-    pub block_number: String
+    pub block_number: String,
 }
 
 async fn get_tx_by_hash_info(domain: &str, hash: &str) -> Result<GetTxByHash, Error> {
@@ -31,10 +36,12 @@ mod test {
     use super::*;
 
     #[tokio::test]
-    async fn get_tx_by_hash_info_should_be_ok (){
-        let response: Result<GetTxByHash, Error> = get_tx_by_hash_info("http://api.iost.io","Dj8bmA4Fx4LHrwLtDB6EEkNbBFU8biENxf55mNaJewYw").await;
+    async fn get_tx_by_hash_info_should_be_ok() {
+        let response: Result<GetTxByHash, Error> = get_tx_by_hash_info(
+            "http://api.iost.io",
+            "Dj8bmA4Fx4LHrwLtDB6EEkNbBFU8biENxf55mNaJewYw",
+        )
+        .await;
         assert!(response.is_ok());
     }
 }
-
-

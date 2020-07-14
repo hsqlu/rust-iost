@@ -1,22 +1,28 @@
-use serde::{Serialize, Deserialize};
-use iost_derive::{Read, Write};
+use alloc::string::{String, ToString};
 
-#[derive(Clone , Default, Serialize, Debug, Write, Read)]
+use iost_derive::{Read, Write};
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Default, Debug, Write, Read)]
+#[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct AmountLimit {
     /// token name
     pub token: String,
     /// corresponding token limit
-    pub value: String
+    pub value: String,
 }
 
+#[cfg(feature = "std")]
 impl<'de> serde::Deserialize<'de> for AmountLimit {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where D: serde::de::Deserializer<'de>
+    where
+        D: serde::de::Deserializer<'de>,
     {
         #[derive(Debug)]
         struct VisitorAmountLimit;
-        impl<'de> serde::de::Visitor<'de> for VisitorAmountLimit{
+        impl<'de> serde::de::Visitor<'de> for VisitorAmountLimit {
             type Value = AmountLimit;
 
             fn expecting(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -24,7 +30,8 @@ impl<'de> serde::Deserialize<'de> for AmountLimit {
             }
 
             fn visit_map<D>(self, mut map: D) -> Result<Self::Value, D::Error>
-                where D: serde::de::MapAccess<'de>,
+            where
+                D: serde::de::MapAccess<'de>,
             {
                 while let Some(field) = map.next_key()? {
                     match field {
@@ -42,11 +49,10 @@ impl<'de> serde::Deserialize<'de> for AmountLimit {
                 }
                 let amount_limit = AmountLimit {
                     token: "".to_string(),
-                    value: "".to_string()
+                    value: "".to_string(),
                 };
                 Ok(amount_limit)
             }
-
         }
         deserializer.deserialize_any(VisitorAmountLimit)
     }
