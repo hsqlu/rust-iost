@@ -1,5 +1,5 @@
 use crate::pledge_info::PledgeInfo;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GasInfo {
@@ -14,5 +14,5 @@ pub struct GasInfo {
     /// The upper limit of gas from token deposit
     pub limit: f64,
     /// The information on deposit made by other accounts, on behalf of the inquired account
-    pub pledged_info: Vec<PledgeInfo>
+    pub pledged_info: Vec<PledgeInfo>,
 }

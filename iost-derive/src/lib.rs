@@ -25,12 +25,12 @@
 #![allow(clippy::unimplemented)]
 extern crate proc_macro;
 
+mod derive_digest;
 mod derive_num_bytes;
 mod derive_read;
+mod derive_serialize_data;
 mod derive_table;
 mod derive_write;
-mod derive_digest;
-mod derive_serialize_data;
 
 use crate::proc_macro::TokenStream;
 use proc_macro2::Span;
@@ -73,10 +73,7 @@ pub fn derive_num_bytes(input: TokenStream) -> TokenStream {
 
 /// TODO docs
 #[inline]
-#[proc_macro_derive(
-    Table,
-    attributes(table_name, primary, secondary, singleton)
-)]
+#[proc_macro_derive(Table, attributes(table_name, primary, secondary, singleton))]
 pub fn derive_table(input: TokenStream) -> TokenStream {
     crate::derive_table::expand(input)
 }
@@ -97,7 +94,12 @@ pub(crate) fn root_path(input: &DeriveInput) -> Path {
         .fold(None, |acc, attr| match attr.parse_meta() {
             Ok(meta) => {
                 let name = meta.path().get_ident();
-                if name.as_ref().expect("please add trait root path").to_string() == "iost_root_path" {
+                if name
+                    .as_ref()
+                    .expect("please add trait root path")
+                    .to_string()
+                    == "iost_root_path"
+                {
                     match meta {
                         Meta::NameValue(meta) => match meta.lit {
                             Lit::Str(s) => Some(s),

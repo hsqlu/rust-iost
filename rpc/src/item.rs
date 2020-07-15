@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Item {
@@ -9,5 +9,5 @@ pub struct Item {
     /// permission weight
     pub weight: String,
     /// the permission
-    pub permission: String
+    pub permission: String,
 }

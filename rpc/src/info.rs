@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Info {
@@ -7,5 +7,5 @@ pub struct Info {
     /// the thread count of transaction concurrent execution
     pub thread: i32,
     /// indices of the transaction
-    pub batch_index: Vec<i32>
+    pub batch_index: Vec<i32>,
 }

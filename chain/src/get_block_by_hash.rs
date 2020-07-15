@@ -13,7 +13,7 @@ pub struct BlockByHash {
     /// PENDING - block is in cache; IRREVERSIBLE - block is irreversible.
     pub status: Status,
     /// a Block struct
-    pub block: Block
+    pub block: Block,
 }
 
 #[derive(Debug)]
@@ -22,7 +22,7 @@ pub struct BlockByNumber {
     /// PENDING - block is in cache; IRREVERSIBLE - block is irreversible.
     pub status: Status,
     /// a Block struct
-    pub block: Block
+    pub block: Block,
 }
 
 async fn get_block_by_hash(domain: &str, hash: &str, complete: bool) -> Result<BlockByHash, Error> {
@@ -37,7 +37,11 @@ async fn get_block_by_hash(domain: &str, hash: &str, complete: bool) -> Result<B
     }
 }
 
-async fn get_block_by_number(domain: &str, number: i32, complete: bool) -> Result<BlockByNumber, Error> {
+async fn get_block_by_number(
+    domain: &str,
+    number: i32,
+    complete: bool,
+) -> Result<BlockByNumber, Error> {
     let url = format!("{}/getBlockByNumber/{}/{}", domain, number, complete);
     let req = reqwest::get(&url).await.map_err(Error::Reqwest)?;
     if req.status() == 200 {
@@ -55,13 +59,18 @@ mod test {
 
     #[tokio::test]
     async fn get_block_by_hash_should_be_ok() {
-        let response = get_block_by_hash("http://api.iost.io","GexerugLra5qBArG4vqCAFNX1F7WzLzpPdmzcjLBAi3k",false).await;
+        let response = get_block_by_hash(
+            "http://api.iost.io",
+            "GexerugLra5qBArG4vqCAFNX1F7WzLzpPdmzcjLBAi3k",
+            false,
+        )
+        .await;
         assert!(response.is_ok());
     }
 
     #[tokio::test]
     async fn get_block_by_number_should_be_ok() {
-        let response = get_block_by_number("http://api.iost.io",3,false).await;
+        let response = get_block_by_number("http://api.iost.io", 3, false).await;
         assert!(response.is_ok());
     }
 }

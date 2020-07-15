@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct VoteInfo {
@@ -7,5 +7,5 @@ pub struct VoteInfo {
     /// number of votes
     pub votes: String,
     /// number of votes cleared
-    pub cleared_votes: String
+    pub cleared_votes: String,
 }

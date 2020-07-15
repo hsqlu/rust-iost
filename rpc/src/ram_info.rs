@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RAMInfo {
@@ -7,5 +7,5 @@ pub struct RAMInfo {
     /// RAM bytes used
     pub used: String,
     /// RAM bytes total
-    pub total: String
+    pub total: String,
 }

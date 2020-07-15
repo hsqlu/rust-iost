@@ -2,10 +2,10 @@
 use alloc::string::{String, ToString};
 
 use crate::Error;
+use core::str::FromStr;
 use iost_derive::{Read, Write};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize, Serializer};
-use core::str::FromStr;
 
 #[derive(Clone, Default, Debug, Write, Read)]
 #[iost_root_path = "crate"]

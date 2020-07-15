@@ -1,4 +1,4 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct ChainInfo {
@@ -25,13 +25,16 @@ pub struct ChainInfo {
     /// time of head block
     pub head_block_time: String,
     /// time of last irreversible block
-    pub lib_block_time: String
+    pub lib_block_time: String,
 }
 
 async fn get_chain_info() -> ChainInfo {
-    let res = reqwest::get("https://api.iost.io/getChainInfo").await.unwrap()
+    let res = reqwest::get("https://api.iost.io/getChainInfo")
+        .await
+        .unwrap()
         .json::<ChainInfo>()
-        .await.unwrap();
+        .await
+        .unwrap();
     res
 }
 
@@ -41,8 +44,6 @@ mod test {
 
     #[tokio::test]
     async fn get_chain_info_should_be_ok() {
-
         println!("{:#?}", get_chain_info().await);
-
     }
 }

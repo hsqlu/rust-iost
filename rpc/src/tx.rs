@@ -1,7 +1,7 @@
 use crate::action::Action;
 use crate::amount_limit::AmountLimit;
 use crate::signature::Signature;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Tx {
@@ -28,7 +28,7 @@ pub struct Tx {
     /// Signer ID other than publisher. It can be empty.
     pub signers: Vec<String>,
     /// Signature of signers. Each signer can have one or more signatures, so the length is not less than the length of signers
-    pub signatures: Vec<Signature>
+    pub signatures: Vec<Signature>,
 }
 
 #[cfg(test)]

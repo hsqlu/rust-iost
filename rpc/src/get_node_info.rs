@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-use crate::net_work_info::NetWork;
-use crate::message::ErrorMessage;
 use crate::error::Error;
-use serde::{Serialize, Deserialize};
+use crate::message::ErrorMessage;
+use crate::net_work_info::NetWork;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NodeInfo {
@@ -21,8 +21,10 @@ pub struct NodeInfo {
     pub server_time: String,
 }
 
-async fn get_node_info () -> Result<NodeInfo, Error>  {
-    let req = reqwest::get("https://api.iost.io/getNodeInfo").await.map_err(Error::Reqwest)?;
+async fn get_node_info() -> Result<NodeInfo, Error> {
+    let req = reqwest::get("https://api.iost.io/getNodeInfo")
+        .await
+        .map_err(Error::Reqwest)?;
     if req.status() == 200 {
         let rsp = req.json::<NodeInfo>().await.map_err(Error::Reqwest)?;
         Ok(rsp)
@@ -38,12 +40,6 @@ mod test {
 
     #[tokio::test]
     async fn get_node_info_should_be_ok() {
-
         println!("{:#?}", get_node_info().await);
-
     }
 }
-
-
-
-

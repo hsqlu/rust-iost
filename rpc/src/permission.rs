@@ -1,5 +1,5 @@
 use crate::item::Item;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Permission {
@@ -10,5 +10,5 @@ pub struct Permission {
     /// permission information
     pub items: Vec<Item>,
     /// permission threshold
-    pub threshold: String
+    pub threshold: String,
 }

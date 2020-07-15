@@ -1,5 +1,5 @@
-use alloc::string::String;
 use alloc::format;
+use alloc::string::String;
 
 use crate::error::Error;
 use crate::message::ErrorMessage;

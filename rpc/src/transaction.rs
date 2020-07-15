@@ -1,7 +1,7 @@
 use crate::action::Action;
 use crate::amount_limit::AmountLimit;
 use crate::tx_receipt::TxReceipt;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Transaction {
@@ -30,6 +30,5 @@ pub struct Transaction {
     /// Users may specify token limits. For example, {"iost": 100} specifies each signers will not spend more than 100 IOST for the transaction
     pub amount_limit: Vec<AmountLimit>,
     /// the receipt of the transaction Action
-    pub tx_receipt: TxReceipt
+    pub tx_receipt: TxReceipt,
 }
-

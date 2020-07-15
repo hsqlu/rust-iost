@@ -70,8 +70,6 @@ mod vote_info;
 
 pub use self::action::*;
 
-
-
 struct IOST {
     host: String,
     client: reqwest::Client,

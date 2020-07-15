@@ -3,10 +3,10 @@ use alloc::vec;
 
 use crate::bytes::{NumberBytes, Write};
 use crate::Error;
+use core::str::FromStr;
 use iost_derive::{NumberBytes, Read, Write};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
-use core::str::FromStr;
 
 #[derive(Clone, Default, Debug, Read, Write, PartialEq, NumberBytes)]
 #[cfg_attr(feature = "std", derive(Serialize))]

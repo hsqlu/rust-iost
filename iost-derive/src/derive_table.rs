@@ -1,10 +1,7 @@
 use crate::proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::quote;
-use syn::{
-    parse_macro_input, parse_quote, Data, DeriveInput, Fields, GenericParam,
-    Meta,
-};
+use syn::{parse_macro_input, parse_quote, Data, DeriveInput, Fields, GenericParam, Meta};
 
 pub fn expand(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -62,7 +59,9 @@ pub fn expand(input: TokenStream) -> TokenStream {
                 for field in fields.named.iter() {
                     for attr in field.attrs.iter() {
                         let name = attr.parse_meta().unwrap();
-                        let (is_primary, is_secondary) = name.path().get_ident()
+                        let (is_primary, is_secondary) = name
+                            .path()
+                            .get_ident()
                             .map(|n| {
                                 let n = n.to_string();
                                 (n == "primary", n == "secondary")
@@ -86,8 +85,7 @@ pub fn expand(input: TokenStream) -> TokenStream {
                         }
 
                         if is_secondary {
-                            secondary_keys
-                                .push((field.ident.clone(), field.ty.clone()));
+                            secondary_keys.push((field.ident.clone(), field.ty.clone()));
                         }
                     }
                 }

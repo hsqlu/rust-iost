@@ -1,11 +1,10 @@
-use crate::status::Status;
 use crate::error::Error;
 use crate::message::ErrorMessage;
-use serde::{Deserialize};
+use crate::status::Status;
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct ProducerVoteInfo {
-
     pub pubkey: String,
 
     pub loc: String,
@@ -20,14 +19,21 @@ pub struct ProducerVoteInfo {
 
     pub online: bool,
 
-    pub votes: i32
+    pub votes: i32,
 }
 
-async fn get_producer_vote_info(domain: &str, id: &str, by_longest_chain: bool) -> Result<ProducerVoteInfo, Error> {
+async fn get_producer_vote_info(
+    domain: &str,
+    id: &str,
+    by_longest_chain: bool,
+) -> Result<ProducerVoteInfo, Error> {
     let url = format!("{}/getProducerVoteInfo/{}/{}", domain, id, by_longest_chain);
     let req = reqwest::get(&url).await.map_err(Error::Reqwest)?;
     if req.status() == 200 {
-        let rsp = req.json::<ProducerVoteInfo>().await.map_err(Error::Reqwest)?;
+        let rsp = req
+            .json::<ProducerVoteInfo>()
+            .await
+            .map_err(Error::Reqwest)?;
         Ok(rsp)
     } else {
         let rsp = req.json::<ErrorMessage>().await.map_err(Error::Reqwest)?;
@@ -41,8 +47,7 @@ mod test {
 
     #[tokio::test]
     async fn get_producer_vote_info_should_be_ok() {
-        let response = get_producer_vote_info("http://api.iost.io","producerName",true).await;
+        let response = get_producer_vote_info("http://api.iost.io", "producerName", true).await;
         assert!(response.is_err());
     }
 }
-

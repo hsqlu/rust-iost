@@ -1,9 +1,9 @@
 #![allow(unused_imports)]
 
+use crate::unsigned_int::UnsignedInt;
 use alloc::string::String;
 use alloc::vec::Vec;
 use iost_derive::{Read, Write};
-use crate::unsigned_int::UnsignedInt;
 
 /// Count the number of bytes a type is expected to use.
 pub trait NumberBytes {
@@ -29,11 +29,7 @@ pub enum ReadError {
 /// Write bytes.
 pub trait Write: Sized {
     /// Write bytes.
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError>;
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError>;
 }
 
 /// Error that can be returned when writing bytes.
@@ -134,11 +130,7 @@ impl Read for f32 {
 
 impl Write for f32 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.to_bits().write(bytes, pos)
     }
 }
@@ -161,11 +153,7 @@ impl Read for f64 {
 
 impl Write for f64 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.to_bits().write(bytes, pos)
     }
 }
@@ -186,11 +174,7 @@ impl Read for bool {
 
 impl Write for bool {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         let value: u8 = if *self { 1 } else { 0 };
         value.write(bytes, pos)
     }
@@ -212,11 +196,7 @@ impl Read for char {
 
 impl Write for char {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         (*self as u8).write(bytes, pos)
     }
 }
@@ -237,19 +217,15 @@ impl Read for usize {
 
 impl Write for usize {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         let u32_bytes = *self as u32;
         u32_bytes.write(bytes, pos)
     }
 }
 
 impl<T> NumberBytes for Vec<T>
-    where
-        T: NumberBytes,
+where
+    T: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -258,8 +234,8 @@ impl<T> NumberBytes for Vec<T>
 }
 
 impl<T> Read for Vec<T>
-    where
-        T: Read + Default + Clone,
+where
+    T: Read + Default + Clone,
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
@@ -275,22 +251,18 @@ impl<T> Read for Vec<T>
 }
 
 impl<T> Write for Vec<T>
-    where
-        T: Write,
+where
+    T: Write,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.as_slice().write(bytes, pos)
     }
 }
 
 impl<T> NumberBytes for alloc::collections::VecDeque<T>
-    where
-        T: NumberBytes,
+where
+    T: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -303,8 +275,8 @@ impl<T> NumberBytes for alloc::collections::VecDeque<T>
 }
 
 impl<T> Read for alloc::collections::VecDeque<T>
-    where
-        T: Read + Default + Clone,
+where
+    T: Read + Default + Clone,
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
@@ -323,15 +295,11 @@ impl<T> Read for alloc::collections::VecDeque<T>
 }
 
 impl<T> Write for alloc::collections::VecDeque<T>
-    where
-        T: Write,
+where
+    T: Write,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.len().write(bytes, pos)?;
         for item in self.iter() {
             item.write(bytes, pos)?;
@@ -341,8 +309,8 @@ impl<T> Write for alloc::collections::VecDeque<T>
 }
 
 impl<T> NumberBytes for &[T]
-    where
-        T: NumberBytes,
+where
+    T: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -355,15 +323,11 @@ impl<T> NumberBytes for &[T]
 }
 
 impl<T> Write for &[T]
-    where
-        T: Write,
+where
+    T: Write,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.len().write(bytes, pos)?;
         for item in self.iter() {
             item.write(bytes, pos)?;
@@ -373,8 +337,8 @@ impl<T> Write for &[T]
 }
 
 impl<T> NumberBytes for Option<T>
-    where
-        T: NumberBytes,
+where
+    T: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -387,8 +351,8 @@ impl<T> NumberBytes for Option<T>
 }
 
 impl<T> Read for Option<T>
-    where
-        T: Read,
+where
+    T: Read,
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
@@ -402,15 +366,11 @@ impl<T> Read for Option<T>
 }
 
 impl<T> Write for Option<T>
-    where
-        T: Write + Default,
+where
+    T: Write + Default,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.is_some().write(bytes, pos)?;
         match self {
             Some(item) => item.write(bytes, pos),
@@ -438,11 +398,7 @@ impl Read for String {
 
 impl Write for String {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.as_bytes().write(bytes, pos)
     }
 }
@@ -457,19 +413,15 @@ impl<'a> NumberBytes for &'a str {
 
 impl<'a> Write for &'a str {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.as_bytes().write(bytes, pos)
     }
 }
 
 impl<A, B> NumberBytes for (A, B)
-    where
-        A: NumberBytes,
-        B: NumberBytes,
+where
+    A: NumberBytes,
+    B: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -478,9 +430,9 @@ impl<A, B> NumberBytes for (A, B)
 }
 
 impl<A, B> Read for (A, B)
-    where
-        A: Read,
-        B: Read,
+where
+    A: Read,
+    B: Read,
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
@@ -491,16 +443,12 @@ impl<A, B> Read for (A, B)
 }
 
 impl<A, B> Write for (A, B)
-    where
-        A: Write,
-        B: Write,
+where
+    A: Write,
+    B: Write,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.0.write(bytes, pos)?;
         self.1.write(bytes, pos)?;
         Ok(())
@@ -508,10 +456,10 @@ impl<A, B> Write for (A, B)
 }
 
 impl<A, B, C> NumberBytes for (A, B, C)
-    where
-        A: NumberBytes,
-        B: NumberBytes,
-        C: NumberBytes,
+where
+    A: NumberBytes,
+    B: NumberBytes,
+    C: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -523,10 +471,10 @@ impl<A, B, C> NumberBytes for (A, B, C)
 }
 
 impl<A, B, C> Read for (A, B, C)
-    where
-        A: Read,
-        B: Read,
-        C: Read,
+where
+    A: Read,
+    B: Read,
+    C: Read,
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
@@ -538,17 +486,13 @@ impl<A, B, C> Read for (A, B, C)
 }
 
 impl<A, B, C> Write for (A, B, C)
-    where
-        A: Write,
-        B: Write,
-        C: Write,
+where
+    A: Write,
+    B: Write,
+    C: Write,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.0.write(bytes, pos)?;
         self.1.write(bytes, pos)?;
         self.2.write(bytes, pos)?;
@@ -557,11 +501,11 @@ impl<A, B, C> Write for (A, B, C)
 }
 
 impl<A, B, C, D> NumberBytes for (A, B, C, D)
-    where
-        A: NumberBytes,
-        B: NumberBytes,
-        C: NumberBytes,
-        D: NumberBytes,
+where
+    A: NumberBytes,
+    B: NumberBytes,
+    C: NumberBytes,
+    D: NumberBytes,
 {
     #[inline]
     fn num_bytes(&self) -> usize {
@@ -574,11 +518,11 @@ impl<A, B, C, D> NumberBytes for (A, B, C, D)
 }
 
 impl<A, B, C, D> Read for (A, B, C, D)
-    where
-        A: Read,
-        B: Read,
-        C: Read,
-        D: Read,
+where
+    A: Read,
+    B: Read,
+    C: Read,
+    D: Read,
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
@@ -591,18 +535,14 @@ impl<A, B, C, D> Read for (A, B, C, D)
 }
 
 impl<A, B, C, D> Write for (A, B, C, D)
-    where
-        A: Write,
-        B: Write,
-        C: Write,
-        D: Write,
+where
+    A: Write,
+    B: Write,
+    C: Write,
+    D: Write,
 {
     #[inline]
-    fn write(
-        &self,
-        bytes: &mut [u8],
-        pos: &mut usize,
-    ) -> Result<(), WriteError> {
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.0.write(bytes, pos)?;
         self.1.write(bytes, pos)?;
         self.2.write(bytes, pos)?;
@@ -742,8 +682,7 @@ mod tests {
     #[allow(clippy::result_unwrap_used)]
     fn test_read_pos() {
         let bytes = &[
-            10, 9, 0, 1, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 20, 4, 3, 2, 1, 1,
-            1, 1, 1,
+            10, 9, 0, 1, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 20, 4, 3, 2, 1, 1, 1, 1, 1,
         ];
 
         let mut pos = 0;
@@ -798,7 +737,7 @@ mod tests {
     fn test_iost_binary_serialization_should_be_ok() {
         let bytes: &[u8] = &[0, 0, 0, 0, 0, 0, 3, 255];
         let mut pos = 0;
-        let a = u64::read(bytes,&mut pos).unwrap();
+        let a = u64::read(bytes, &mut pos).unwrap();
         assert_eq!(a, 1023);
         assert_eq!(pos, 8);
     }
@@ -820,10 +759,12 @@ mod tests {
 
     #[test]
     fn test_iost_array_binary_serialization_should_be_ok() {
-        let arr: Vec<u8> = vec![0, 0, 0, 2, 0, 0, 0, 4, 105, 111, 115, 116, 0, 0, 0, 4, 105, 111, 115, 116];
+        let arr: Vec<u8> = vec![
+            0, 0, 0, 2, 0, 0, 0, 4, 105, 111, 115, 116, 0, 0, 0, 4, 105, 111, 115, 116,
+        ];
         let mut pos = 0;
         let vec: Vec<String> = Vec::read(arr.as_ref(), &mut pos).unwrap();
-        let local_vec = vec!["iost","iost"];
+        let local_vec = vec!["iost", "iost"];
         assert_eq!(pos, 20);
         assert_eq!(vec, local_vec);
     }

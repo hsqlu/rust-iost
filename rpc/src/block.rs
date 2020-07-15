@@ -1,6 +1,6 @@
 use crate::info::Info;
 use crate::transaction::Transaction;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Block {
@@ -27,6 +27,5 @@ pub struct Block {
     /// (This key is reserved.)
     pub info: Info,
     /// all the transactions.
-    pub transactions: Vec<Transaction>
+    pub transactions: Vec<Transaction>,
 }
-

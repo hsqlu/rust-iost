@@ -1,6 +1,6 @@
+use crate::base58;
 use alloc::string::ToString;
 use core::fmt;
-use crate::base58;
 
 pub type Result<T> = core::result::Result<T, Error>;
 

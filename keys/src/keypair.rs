@@ -4,7 +4,6 @@ use crate::secret::SecretKey;
 use crate::signature::Signature;
 use rand::Rng;
 
-
 /// A secp256k1 keypair.
 #[derive(Clone, PartialEq, Eq)]
 pub struct Keypair {
@@ -16,7 +15,10 @@ pub struct Keypair {
 
 impl Keypair {
     /// Generate an secp256k1 keypair.
-    pub fn generate<R>(csprng: &mut R) -> Keypair where R: Rng {
+    pub fn generate<R>(csprng: &mut R) -> Keypair
+    where
+        R: Rng,
+    {
         let sk = SecretKey::generate(csprng);
         let pk = PublicKey::from(&sk);
 
@@ -55,10 +57,10 @@ impl Keypair {
 #[cfg(test)]
 mod tests {
     use super::Keypair;
+    use super::PublicKey;
     use alloc::string::ToString;
     #[cfg(feature = "std")]
     use rand::thread_rng;
-    use super::PublicKey;
 
     #[cfg(feature = "std")]
     #[test]
@@ -73,7 +75,10 @@ mod tests {
     fn keypair_from_secret_wif_should_work() {
         let wif = "5HrBLKfeEdqH9KLMv1daHLVjrXV3DGVERAkN5cdSSc58bzqqfT4";
         let keypair = Keypair::from_secret_wif(wif).unwrap();
-        assert_eq!(keypair.pk.to_string(), "EOS8FdQ4gt16pFcSiXAYCcHnkHTS2nNLFWGZXW5sioAdvQuMxKhAm");
+        assert_eq!(
+            keypair.pk.to_string(),
+            "EOS8FdQ4gt16pFcSiXAYCcHnkHTS2nNLFWGZXW5sioAdvQuMxKhAm"
+        );
     }
 
     #[test]

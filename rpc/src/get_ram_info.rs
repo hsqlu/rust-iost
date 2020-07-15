@@ -1,4 +1,4 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct RamInfo {
@@ -11,13 +11,16 @@ pub struct RamInfo {
     /// The buying price of RAM, in IOST/byte
     pub buy_price: f64,
     /// 	The selling price of RAM, in IOST/byte
-    pub sell_price: f64
+    pub sell_price: f64,
 }
 
 async fn get_ram_info() -> RamInfo {
-    let res = reqwest::get("https://api.iost.io/getRAMInfo").await.unwrap()
+    let res = reqwest::get("https://api.iost.io/getRAMInfo")
+        .await
+        .unwrap()
         .json::<RamInfo>()
-        .await.unwrap();
+        .await
+        .unwrap();
     res
 }
 
@@ -27,8 +30,6 @@ mod test {
 
     #[tokio::test]
     async fn get_ram_info_should_be_ok() {
-
         println!("{:#?}", get_ram_info().await);
-
     }
 }

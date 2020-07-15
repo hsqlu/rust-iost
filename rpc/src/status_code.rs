@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -11,5 +11,5 @@ pub enum StatusCode {
     TIMEOUT,
     WRONG_TX_FORMAT,
     DUPLICATE_SET_CODE,
-    UNKNOWN_ERROR
+    UNKNOWN_ERROR,
 }

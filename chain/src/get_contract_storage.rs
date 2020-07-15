@@ -1,5 +1,5 @@
-use alloc::string::String;
 use crate::error::Error;
+use alloc::string::String;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 

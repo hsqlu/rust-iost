@@ -6,8 +6,8 @@ use crate::message::ErrorMessage;
 use crate::permission::Permission;
 use crate::ram_info::RAMInfo;
 use crate::vote_info::VoteInfo;
+use serde::Deserialize;
 use std::collections::HashMap;
-use serde::{Deserialize};
 
 #[derive(Deserialize, Debug)]
 pub struct Account {
@@ -26,7 +26,7 @@ pub struct Account {
     /// information on the frozen balance
     pub frozen_balances: Vec<FrozenBalance>,
     /// information of vote
-    pub vote_infos: Vec<VoteInfo>
+    pub vote_infos: Vec<VoteInfo>,
 }
 
 async fn get_account(domain: &str, account: &str, complete: bool) -> Result<Account, Error> {
@@ -47,8 +47,7 @@ mod test {
 
     #[tokio::test]
     async fn get_account_should_be_ok() {
-        let response = get_account("http://api.iost.io","admin",true).await;
+        let response = get_account("http://api.iost.io", "admin", true).await;
         assert!(response.is_ok());
     }
 }
-
