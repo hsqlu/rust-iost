@@ -53,6 +53,7 @@ mod info;
 mod item;
 mod key_field;
 mod message;
+mod names;
 mod net_work_info;
 mod permission;
 mod pledge_info;

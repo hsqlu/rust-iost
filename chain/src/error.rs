@@ -1,4 +1,5 @@
 use crate::message::ErrorMessage;
+use crate::names::ParseNameError;
 // #[cfg(feature = "std")]
 // use serde::{Serialize, Deserialize};
 
@@ -9,4 +10,6 @@ pub enum Error {
     Reqwest(reqwest::Error),
     ///Error response message
     ErrorMessage(ErrorMessage),
+
+    ParseNameErr(ParseNameError),
 }
