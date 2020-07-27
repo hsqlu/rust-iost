@@ -24,52 +24,55 @@ use async_trait::async_trait;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
-mod abi;
-mod action;
-mod amount_limit;
-mod block;
-mod bytes;
-mod error;
-mod frozen_balance;
-mod gas_info;
-mod get_account;
-mod get_batch_contract_storage;
-mod get_block_by_hash;
-mod get_candidate_bonus;
-mod get_chain_info;
-mod get_contract;
-mod get_contract_storage;
-mod get_contract_storage_fields;
-mod get_gas_ratio;
-mod get_node_info;
-mod get_producer_vote_info;
-mod get_ram_info;
-mod get_token_balance;
-mod get_token_info;
-mod get_tx_by_hash;
-mod get_voter_bonus;
-mod group;
-mod info;
-mod item;
-mod key_field;
-mod message;
-mod names;
-mod net_work_info;
-mod permission;
-mod pledge_info;
-mod ram_info;
-mod receipts;
-mod signature;
-mod status;
-mod status_code;
-mod transaction;
-mod tx;
-mod tx_receipt;
-mod tx_response;
-mod unsigned_int;
-mod vote_info;
+pub mod abi;
+pub mod action;
+pub mod amount_limit;
+pub mod block;
+pub mod bytes;
+pub mod error;
+pub mod fixed;
+pub mod frozen_balance;
+pub mod gas_info;
+pub mod get_account;
+pub mod get_batch_contract_storage;
+pub mod get_block_by_hash;
+pub mod get_candidate_bonus;
+pub mod get_chain_info;
+pub mod get_contract;
+pub mod get_contract_storage;
+pub mod get_contract_storage_fields;
+pub mod get_gas_ratio;
+pub mod get_node_info;
+pub mod get_producer_vote_info;
+pub mod get_ram_info;
+pub mod get_token_balance;
+pub mod get_token_info;
+pub mod get_tx_by_hash;
+pub mod get_voter_bonus;
+pub mod group;
+pub mod info;
+pub mod item;
+pub mod key_field;
+pub mod message;
+pub mod names;
+pub mod net_work_info;
+pub mod permission;
+pub mod pledge_info;
+pub mod ram_info;
+pub mod receipts;
+pub mod signature;
+pub mod status;
+pub mod status_code;
+pub mod transaction;
+pub mod tx;
+pub mod tx_receipt;
+pub mod tx_response;
+pub mod unsigned_int;
+pub mod vote_info;
 
-pub use self::action::*;
+pub use iost_derive::*;
+
+pub use self::{action::*, bytes::*, error::*, names::*, unsigned_int::*};
 
 struct IOST {
     host: String,
@@ -80,11 +83,11 @@ struct IOST {
 trait Client {
     fn new(host: &str) -> Self;
 
-    async fn get<T>(&self, path: &str) -> Result<T, Error>
+    async fn get<T>(&self, path: &str) -> core::result::Result<T, Error>
     where
         T: 'static + for<'de> Deserialize<'de>;
 
-    async fn post<T, R>(&self, path: &str, param: R) -> Result<T, Error>
+    async fn post<T, R>(&self, path: &str, param: R) -> core::result::Result<T, Error>
     where
         T: 'static + for<'de> Deserialize<'de>,
         R: Serialize + Send + Sync;
@@ -99,7 +102,7 @@ impl Client for IOST {
         }
     }
 
-    async fn get<T>(&self, path: &str) -> Result<T, Error>
+    async fn get<T>(&self, path: &str) -> core::result::Result<T, Error>
     where
         T: 'static + for<'de> Deserialize<'de>,
     {
@@ -117,7 +120,7 @@ impl Client for IOST {
         }
     }
 
-    async fn post<T, R>(&self, path: &str, param: R) -> Result<T, Error>
+    async fn post<T, R>(&self, path: &str, param: R) -> core::result::Result<T, Error>
     where
         T: 'static + for<'de> Deserialize<'de>,
         R: Serialize + Send + Sync,
@@ -141,44 +144,44 @@ impl Client for IOST {
 }
 
 impl IOST {
-    pub async fn get_node_info(&self) -> Result<NodeInfo, Error> {
+    pub async fn get_node_info(&self) -> core::result::Result<NodeInfo, Error> {
         self.get("getNodeInfo").await
     }
 
-    pub async fn get_chain_info(&self) -> Result<ChainInfo, Error> {
+    pub async fn get_chain_info(&self) -> core::result::Result<ChainInfo, Error> {
         self.get("getChainInfo").await
     }
 
-    pub async fn get_gas_ratio(&self) -> Result<GasRatio, Error> {
+    pub async fn get_gas_ratio(&self) -> core::result::Result<GasRatio, Error> {
         self.get("getGasRatio").await
     }
 
-    pub async fn get_ram_info(&self) -> Result<RamInfo, Error> {
+    pub async fn get_ram_info(&self) -> core::result::Result<RamInfo, Error> {
         self.get("getRAMInfo").await
     }
 
     pub async fn get_contract_storage(
         &self,
         par: ContractStoragePost,
-    ) -> Result<ContractStorage, Error> {
+    ) -> core::result::Result<ContractStorage, Error> {
         self.post("getContractStorage", &par).await
     }
 
     pub async fn get_contract_storage_fields(
         &self,
         par: ContractStorageFieldsPost,
-    ) -> Result<ContractStorageFields, Error> {
+    ) -> core::result::Result<ContractStorageFields, Error> {
         self.post("getContractStorageFields", &par).await
     }
 
     pub async fn get_batch_contract_storage(
         &self,
         par: BatchContractStoragePost,
-    ) -> Result<BatchContractStorage, Error> {
+    ) -> core::result::Result<BatchContractStorage, Error> {
         self.post("getBatchContractStorage", &par).await
     }
 
-    pub async fn send_tx(&self, par: Tx) -> Result<TxResponse, Error> {
+    pub async fn send_tx(&self, par: Tx) -> core::result::Result<TxResponse, Error> {
         self.post("sendTx", par).await
     }
 }

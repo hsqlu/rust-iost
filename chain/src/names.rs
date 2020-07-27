@@ -1,9 +1,9 @@
 //! <https://github.com/EOSIO/eosio.cdt/blob/4985359a30da1f883418b7133593f835927b8046/libraries/eosiolib/core/eosio/name.hpp#L28-L269>
 // use crate::{NumBytes, Read, Write};
+use crate::{NumberBytes, Read, Write};
 use alloc::string::{String, ToString};
 use codec::{Decode, Encode};
 use core::{convert::TryFrom, fmt, str::FromStr};
-use iost_derive::{NumberBytes, Read, Write};
 
 /// All possible characters that can be used in EOSIO names.
 pub const NAME_UTF8_CHARS: [u8; 32] = *b".12345abcdefghijklmnopqrstuvwxyz";
@@ -41,7 +41,7 @@ impl fmt::Display for ParseNameError {
 
 impl From<ParseNameError> for crate::error::Error {
     fn from(e: ParseNameError) -> crate::error::Error {
-        crate::error::Error::ParseNameErr(e)
+        crate::Error::ParseNameErr(e)
     }
 }
 
@@ -50,7 +50,7 @@ impl From<ParseNameError> for crate::error::Error {
 /// # Examples
 ///
 /// ```
-/// use eos_chain::{name_from_str, ParseNameError};
+/// use iost_chain::{name_from_str, ParseNameError};
 /// assert_eq!(name_from_str(""), Ok(0));
 /// assert_eq!(name_from_str("a"), Ok(3458764513820540928));
 /// assert_eq!(name_from_str("123456789012"), Err(ParseNameError::BadChar('6')));
@@ -71,7 +71,7 @@ pub fn name_from_str(value: &str) -> Result<u64, ParseNameError> {
 /// # Examples
 ///
 /// ```
-/// use eos_chain::{name_from_chars, ParseNameError};
+/// use iost_chain::{name_from_chars, ParseNameError};
 /// assert_eq!(name_from_chars("".chars()), Ok(0));
 /// assert_eq!(name_from_chars("a".chars()), Ok(3458764513820540928));
 /// assert_eq!(name_from_chars("123456789012".chars()), Err(ParseNameError::BadChar('6')));
@@ -126,9 +126,9 @@ fn char_to_symbol(c: char) -> Option<char> {
 /// # Examples
 ///
 /// ```
-/// use eos_chain::name_to_string;
+/// use iost_chain::name_to_string;
 /// use std::str::FromStr;
-/// use eos_chain::ActionName;
+/// use iost_chain::ActionName;
 /// assert_eq!(name_to_string(6138663577826885632), "eosio");
 /// assert_eq!(name_to_string(6138663581940940800), "eosio.bpay");
 /// assert_eq!(name_to_string(0), "");
@@ -146,7 +146,7 @@ pub fn name_to_string(name: u64) -> String {
 /// # Examples
 ///
 /// ```
-/// use eos_chain::name_to_utf8;
+/// use iost_chain::name_to_utf8;
 /// assert_eq!(name_to_utf8(6138663591592764928), *b"eosio.token..");
 /// assert_eq!(name_to_utf8(6138663581940940800), *b"eosio.bpay...");
 /// assert_eq!(name_to_utf8(0), *b".............");

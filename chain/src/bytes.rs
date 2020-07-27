@@ -3,7 +3,7 @@ use crate::unsigned_int::UnsignedInt;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use iost_derive::{Read, Write};
+// use iost_derive::{Read, Write};
 
 /// Count the number of bytes a type is expected to use.
 pub trait NumberBytes {
