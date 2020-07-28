@@ -475,7 +475,6 @@ dependencies = [
  "iost-derive",
  "itoa",
  "parity-scale-codec",
- "reqwest",
  "serde",
  "serde_json",
  "sha3",

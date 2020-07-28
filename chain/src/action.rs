@@ -1,15 +1,13 @@
 use alloc::string::{String, ToString};
 use alloc::{format, vec};
 
-use crate::Error;
-use crate::{AccountName, NumberBytes, Read, Write};
+use crate::{AccountName, Error, NumberBytes, Read, SerializeData, Write};
 use codec::{Decode, Encode};
 use core::str::FromStr;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
-// use crate::Error::FixedParseAmountFormat;
 
-#[derive(Clone, Default, Debug, Read, Write, Encode, Decode, PartialEq, NumberBytes)]
+#[derive(Clone, Default, Debug, Read, Write, PartialEq, NumberBytes, SerializeData)]
 #[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct Action {
@@ -58,9 +56,9 @@ impl<'de> serde::Deserialize<'de> for Action {
                     }
                 }
                 let action = Action {
-                    contract: "".to_string(),
-                    action_name: "".to_string(),
-                    data: "".to_string(),
+                    contract: String::from(""),
+                    action_name: String::from(""),
+                    data: String::from(""),
                 };
                 Ok(action)
             }
@@ -78,18 +76,26 @@ impl Action {
         }
     }
 
-    // pub fn from_str<T: AsRef<str>, S: SerializeData>(accout: T, name: T, action_data: S) {
-
-    // }
+    pub fn from_str<T: AsRef<str>, S: SerializeData>(
+        accout: T,
+        name: T,
+        action_data: S,
+    ) -> crate::Result<Self> {
+        Ok(Action {
+            contract: String::from(""),
+            action_name: String::from(""),
+            data: String::from(""),
+        })
+    }
 
     pub fn transfer<T: AsRef<str>>(from: T, to: T, quantity: T, memo: T) -> crate::Result<Action> {
         // let action_transfer = ActionTransfer::from_str(from, to, quantity, memo);
         // Action::from_str("", "", action_transfer)
         // Err(FixedParseAmountFormat())
         Ok(Action {
-            contract: "".to_owned(),
-            action_name: "".to_owned(),
-            data: "".to_owned(),
+            contract: String::from(""),
+            action_name: String::from(""),
+            data: String::from(""),
         })
     }
 }
@@ -139,7 +145,7 @@ impl ActionTransfer {
         let to = FromStr::from_str(to.as_ref()).map_err(crate::Error::from)?;
         let amount = 10;
         let memo = memo.as_ref().to_string();
-        let symbol = "iost".to_owned();
+        let symbol = String::from("iost");
         Ok(ActionTransfer {
             symbol,
             from,
@@ -166,7 +172,7 @@ pub trait ToAction: Write + NumberBytes {
         Ok(Action {
             contract,
             action_name,
-            data: "".to_string(),
+            data: String::from(""),
         })
     }
 }
