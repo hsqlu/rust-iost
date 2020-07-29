@@ -472,6 +472,7 @@ dependencies = [
  "crypto",
  "digest",
  "ed25519",
+ "hex",
  "iost-derive",
  "itoa",
  "parity-scale-codec",
