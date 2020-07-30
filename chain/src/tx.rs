@@ -74,5 +74,10 @@ mod test {
         "#;
         let tx_struct: Result<Tx, _> = serde_json::from_str(tx_str);
         assert!(tx_struct.is_ok());
+        if let Ok(tx) = tx_struct {
+            let tx_string = serde_json::to_string_pretty(&tx).unwrap();
+            dbg!(&tx_string);
+            // assert_eq!(&tx_str, &tx_string);
+        }
     }
 }

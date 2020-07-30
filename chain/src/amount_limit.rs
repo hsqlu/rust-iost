@@ -1,4 +1,4 @@
-use alloc::string::{String, ToString};
+use alloc::string::String;
 
 use iost_derive::{Read, Write};
 #[cfg(feature = "std")]
@@ -33,13 +33,15 @@ impl<'de> serde::Deserialize<'de> for AmountLimit {
             where
                 D: serde::de::MapAccess<'de>,
             {
+                let mut token = String::from("");
+                let mut value = String::from("");
                 while let Some(field) = map.next_key()? {
                     match field {
                         "token" => {
-                            let _token = map.next_value()?;
+                            token = map.next_value()?;
                         }
                         "value" => {
-                            let _value = map.next_value()?;
+                            value = map.next_value()?;
                         }
                         _ => {
                             let _: serde_json::Value = map.next_value()?;
@@ -47,10 +49,7 @@ impl<'de> serde::Deserialize<'de> for AmountLimit {
                         }
                     }
                 }
-                let amount_limit = AmountLimit {
-                    token: "".to_string(),
-                    value: "".to_string(),
-                };
+                let amount_limit = AmountLimit { token, value };
                 Ok(amount_limit)
             }
         }

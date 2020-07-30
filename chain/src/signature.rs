@@ -8,6 +8,7 @@ use iost_derive::{Read, Write};
 use serde::{Deserialize, Serialize, Serializer};
 
 #[derive(Clone, Default, Debug, Write, Read)]
+#[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct Signature {
     /// Encryption algorithm. Currently only "ed25519" and "secp256k1" are supported
@@ -29,16 +30,16 @@ impl Signature {
         self.to_bytes()
     }
 }
-
-#[cfg(feature = "std")]
-impl Serialize for Signature {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str(&self.algorithm)
-    }
-}
+//
+// #[cfg(feature = "std")]
+// impl Serialize for Signature {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: Serializer,
+//     {
+//         serializer.serialize_str(&self.algorithm)
+//     }
+// }
 
 #[cfg(feature = "std")]
 impl<'de> serde::Deserialize<'de> for Signature {
@@ -59,16 +60,19 @@ impl<'de> serde::Deserialize<'de> for Signature {
             where
                 D: serde::de::MapAccess<'de>,
             {
+                let mut algorithm = String::from("");
+                let mut signature = String::from("");
+                let mut public_key = String::from("");
                 while let Some(field) = map.next_key()? {
                     match field {
                         "algorithm" => {
-                            let _algorithm = map.next_value()?;
+                            algorithm = map.next_value()?;
                         }
                         "signature" => {
-                            let _signature = map.next_value()?;
+                            signature = map.next_value()?;
                         }
                         "public_key" => {
-                            let _public_key = map.next_value()?;
+                            public_key = map.next_value()?;
                         }
                         _ => {
                             let _: serde_json::Value = map.next_value()?;
@@ -77,9 +81,9 @@ impl<'de> serde::Deserialize<'de> for Signature {
                     }
                 }
                 let signature = Signature {
-                    algorithm: "".to_string(),
-                    signature: "".to_string(),
-                    public_key: "".to_string(),
+                    algorithm,
+                    signature,
+                    public_key,
                 };
                 Ok(signature)
             }

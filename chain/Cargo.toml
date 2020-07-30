@@ -27,5 +27,5 @@ default = ["std"]
 std = [
     "codec/std",
     "serde/std",
-    "serde_json",
+    "serde_json/std",
 ]

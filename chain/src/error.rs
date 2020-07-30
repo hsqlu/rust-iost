@@ -7,6 +7,7 @@ pub enum Error {
     BytesReadError(ReadError),
     BytesWriteError(WriteError),
 
+    JsonParserError(),
     ///Error response message
     ErrorMessage(ErrorMessage),
 
