@@ -1,13 +1,12 @@
 #![allow(unconditional_recursion)]
 use alloc::string::{String, ToString};
 
-use crate::Error;
+use crate::{Error, NumberBytes, Read, Write};
 use core::str::FromStr;
-use iost_derive::{Read, Write};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize, Serializer};
 
-#[derive(Clone, Default, Debug, Write, Read)]
+#[derive(Clone, Default, Debug, NumberBytes, Write, Read)]
 #[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct Signature {

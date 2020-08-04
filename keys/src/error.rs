@@ -10,6 +10,8 @@ pub enum Error {
     Base58(base58::Error),
     /// secp256k1-related error
     Secp256k1(secp256k1::Error),
+
+    ErrorEd25519(ed25519_dalek::SignatureError),
     /// hash error
     Hash(bitcoin_hashes::error::Error),
     /// verify failed
@@ -21,6 +23,7 @@ impl fmt::Display for Error {
         match *self {
             Error::Base58(ref e) => fmt::Display::fmt(e, f),
             Error::Secp256k1(ref e) => f.write_str(&e.to_string()),
+            Error::ErrorEd25519(ref e) => f.write_str(&e.to_string()),
             Error::Hash(ref e) => f.write_str(&e.to_string()),
             Error::VerifyFailed => f.write_str("Verify failed"),
         }

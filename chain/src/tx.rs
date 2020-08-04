@@ -1,16 +1,15 @@
-use alloc::string::String;
+use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use alloc::vec;
 
-use crate::action::Action;
-use crate::amount_limit::AmountLimit;
-use crate::signature::Signature;
-use iost_derive::{Read, Write};
+use chrono::{SecondsFormat, TimeZone, Utc};
+use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, Write, WriteError, Signature};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
-
-#[derive(Clone, Default, Debug, Write, Read)]
+use sha3::{Digest, Sha3_256};
+use std::time::SystemTime;
+#[derive(Clone, Default, Debug)]
 #[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
-#[iost_root_path = "crate"]
 pub struct Tx {
     /// Time of transaction. Unixepoch start in nanoseconds
     pub time: i64,
@@ -36,6 +35,182 @@ pub struct Tx {
     pub signers: Vec<String>,
     /// Signature of signers. Each signer can have one or more signatures, so the length is not less than the length of signers
     pub signatures: Vec<Signature>,
+}
+
+impl NumberBytes for Tx {
+    #[inline]
+    fn num_bytes(&self) -> usize {
+        44 + self.signers.num_bytes() + self.actions.num_bytes() + self.amount_limit.num_bytes() + self.signatures.num_bytes()
+    }
+}
+
+impl Read for Tx {
+    #[inline]
+    fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
+        let time_bits = i64::read(bytes, pos)?;
+        let time = i64::from(time_bits);
+        let expiration_bits = i64::read(bytes, pos)?;
+        let expiration = i64::from(expiration_bits);
+        let gas_ratio_bits = f64::read(bytes, pos)?;
+        let gas_ratio = f64::from(gas_ratio_bits) / 100.0;
+        let gas_limit_bits = f64::read(bytes, pos)?;
+        let gas_limit = f64::from(gas_limit_bits) / 100.0;
+        let delay_bits = i64::read(bytes, pos)?;
+        let delay = i64::from(delay_bits);
+        let chain_id_bits = u32::read(bytes, pos)?;
+        let chain_id = u32::from(chain_id_bits);
+        let signers_capacity = usize::read(bytes, pos)?;
+        let mut signers = Vec::new();
+        signers.resize(signers_capacity, String::default());
+
+        for item in &mut signers {
+            let r = String::read(bytes, pos)?;
+            *item = r;
+        }
+
+        let actions_capacity = usize::read(bytes, pos)?;
+        let mut actions = Vec::new();
+        actions.resize(actions_capacity, Action::default());
+
+        for item in &mut actions {
+            let r = Action::read(bytes, pos)?;
+            *item = r;
+        }
+
+        let actions_capacity = usize::read(bytes, pos)?;
+        let mut actions = Vec::new();
+        actions.resize(actions_capacity, Action::default());
+
+        for item in &mut actions {
+            let r = Action::read(bytes, pos)?;
+            *item = r;
+        }
+
+        let amount_limits_capacity = usize::read(bytes, pos)?;
+        let mut amount_limit = Vec::new();
+        amount_limit.resize(amount_limits_capacity, AmountLimit::default());
+
+        for item in &mut amount_limit {
+            let r = AmountLimit::read(bytes, pos)?;
+            *item = r;
+        }
+
+        let signatures_capacity = usize::read(bytes, pos)?;
+        let mut signatures = Vec::new();
+        signatures.resize(signatures_capacity, Signature::default());
+
+        for item in &mut signatures {
+            let r = Signature::read(bytes, pos)?;
+            *item = r;
+        }
+
+        Ok(Tx {
+            time,
+            expiration,
+            gas_ratio,
+            gas_limit,
+            delay,
+            chain_id,
+            actions,
+            signers,
+            amount_limit,
+            signatures,
+            publisher: "".to_string(),
+            publisher_sigs: vec![]
+        })
+    }
+}
+
+impl Write for Tx {
+
+    #[inline]
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
+        self.time.clone().write(bytes, pos);
+        self.expiration.clone().write(bytes, pos);
+        let mut ratio = (self.gas_ratio * 100.0) as i64;
+        ratio.write(bytes, pos);
+        let mut limit = (self.gas_limit * 100.0) as i64;
+        limit.write(bytes, pos);
+        self.delay.clone().write(bytes, pos);
+        self.chain_id.clone().write(bytes, pos);
+        0u32.write(bytes, pos);
+        self.signers.as_slice().write(bytes, pos);
+        self.actions.as_slice().write(bytes, pos);
+        self.amount_limit.as_slice().write(bytes, pos);
+        self.signatures.as_slice().write(bytes, pos)
+    }
+}
+
+impl Tx {
+    pub fn new() -> Self {
+        Tx {
+            time: 0,
+            expiration: 0,
+            gas_ratio: 0.0,
+            gas_limit: 0.0,
+            delay: 0,
+            chain_id: 0,
+            actions: vec![],
+            amount_limit: vec![],
+            publisher: "".to_string(),
+            publisher_sigs: vec![],
+            signers: vec![],
+            signatures: vec![]
+        }
+    }
+
+    pub fn from_action(actions: Vec<Action>) -> Self {
+        let time = Utc::now().timestamp();
+        let expiration = time + 90000000000;
+
+        Tx {
+            time,
+            expiration,
+            gas_ratio: 1000000.0,
+            gas_limit: 1.0,
+            delay: 0,
+            chain_id: 0,
+            actions,
+            amount_limit: vec![AmountLimit{token: String::from("*"), value: String::from("unlimited") }],
+            publisher: "".to_string(),
+            publisher_sigs: vec![],
+            signers: vec![],
+            signatures: vec![]
+        }
+    }
+
+    // t.Publisher = s.accountName
+    // if len(t.PublisherSigs) == 0 {
+    // signAlgorithm := GetSignAlgoByName(signAlgo)
+    // txHashBytes := common.Sha3(txToBytes(t, true))
+    // publishSig := &rpcpb.Signature{
+    // Algorithm: rpcpb.Signature_Algorithm(signAlgorithm),
+    // Signature: signAlgorithm.Sign(txHashBytes, s.keyPair.Seckey),
+    // PublicKey: signAlgorithm.GetPubkey(s.keyPair.Seckey),
+    // }
+    // t.PublisherSigs = []*rpcpb.Signature{publishSig}
+    // }
+    // return t, nil
+    pub fn sign(&mut self, account_name: String, algorithm: String) -> Result<(), WriteError> {
+        self.publisher = account_name;
+        if self.publisher_sigs.len() == 0 {
+            let mut bytes: Vec<u8>= Vec::new();
+            bytes.resize(self.num_bytes(), 0);
+            self.write(&mut *bytes, &mut (0 as usize))?;
+            // sha3::digest(bytes);
+
+            let mut _hasher = Sha3_256::new();
+            // hasher
+            // hasher::input(bytes.as_slice());
+            // let result = hasher.result();
+            self.publisher_sigs = vec![Signature {
+                algorithm,
+                signature: "".to_string(),
+                public_key: "".to_string()
+            }]
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]

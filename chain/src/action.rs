@@ -13,6 +13,8 @@ use serde::{
 };
 #[cfg(feature = "std")]
 use serde_json::to_string as json_to_string;
+// #[cfg(feature = "std")]
+// use std::io::Write;
 
 #[derive(Clone, Default, Debug, Read, Write, PartialEq, NumberBytes, SerializeData)]
 #[cfg_attr(feature = "std", derive(Serialize))]
@@ -113,6 +115,14 @@ impl Action {
             String::from("transfer"),
             action_transfer,
         )
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut result: Vec<u8> = vec![];
+        // result.write(self.contract.as_bytes());
+        // result.write(self.action_name.as_bytes());
+        // result.write(self.data.as_bytes());
+        result
     }
 }
 

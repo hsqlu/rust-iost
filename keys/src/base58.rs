@@ -362,6 +362,7 @@ pub fn check_encode_slice_to_fmt(fmt: &mut fmt::Formatter, data: &[u8]) -> fmt::
 mod tests {
     use super::*;
     use hex::decode as hex_decode;
+    use crate::keypair::Keypair;
 
     #[test]
     fn test_base58_encode() {
@@ -412,6 +413,16 @@ mod tests {
             from_check("1PfJpZsjreyVrqeoAfabrRwwjQyoSQMmHH").ok(),
             Some(hex_decode("00f8917303bfa8ef24f292e8fa1419b20460ba064d").unwrap())
         )
+    }
+
+    #[test]
+    fn test_base58() {
+        let s = from("2yquS3ySrGWPEKywCPzX4RTJugqRh7kJSo5aehsLYPEWkUxBWA39oMrZ7ZxuM4fgyXYs2cPwh5n8aNNpH5x2VyK1").unwrap();
+        // dbg!(s);
+        let result = hex::encode(s);
+        dbg!(result);
+        // dbg!(String::from_utf8(s).unwrap());
+        // let keypair = Keypair::from_secret_wif(&s[..]);
     }
 
     #[test]

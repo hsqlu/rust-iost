@@ -181,6 +181,8 @@ mod test {
         assert!(sig.is_ok());
         let sig = sig.unwrap();
         assert!(sig.is_canonical());
-        assert_eq!(sig.to_string(), "SIG_K1_KL1utX4aFNsSfEWVGtqcLAyhV5juPxhGNB7vGTUGKiWeEgxeXhxpuAPg44t7LeaBQPr5qf3Md7VZtEDZHtsfAwr95rpjGa");
+        // "SIG_K1_K6rYC3ug7nZnxcTRoeqKWHD1u8ySNhSs9bHcW1dgpc5jhSoy4hpfwZAVbzbG3MsW8fdHtxMdvAM3RQpmYjth21YY352U8y"
+        // assert_eq!(sig.to_string(), "SIG_K1_KL1utX4aFNsSfEWVGtqcLAyhV5juPxhGNB7vGTUGKiWeEgxeXhxpuAPg44t7LeaBQPr5qf3Md7VZtEDZHtsfAwr95rpjGa");
+        assert_eq!(sig.to_string(), "SIG_K1_K6rYC3ug7nZnxcTRoeqKWHD1u8ySNhSs9bHcW1dgpc5jhSoy4hpfwZAVbzbG3MsW8fdHtxMdvAM3RQpmYjth21YY352U8y");
     }
 }

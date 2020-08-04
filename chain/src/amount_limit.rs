@@ -1,10 +1,12 @@
 use alloc::string::String;
+use alloc::vec::Vec;
+use alloc::vec;
 
-use iost_derive::{Read, Write};
+use crate::{NumberBytes, Read, Write, SerializeData};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Default, Debug, Write, Read)]
+#[derive(Clone, Default, Debug, NumberBytes, Read, Write)]
 #[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct AmountLimit {
@@ -56,3 +58,17 @@ impl<'de> serde::Deserialize<'de> for AmountLimit {
         deserializer.deserialize_any(VisitorAmountLimit)
     }
 }
+
+// impl AmountLimit {
+//     #[cfg(feature = "std")]
+//     pub fn to_bytes(&self) -> Vec<u8> {
+//         let mut result = bytebuffer::ByteBuffer::new();
+//         let mut token = self.token.clone();
+//         let mut value = self.value.clone();
+//
+//         result.write(token.as_bytes());
+//         result.write(value.as_bytes());
+//         // unsafe { result.write(value.as_bytes_mut()) }
+//         result
+//     }
+// }

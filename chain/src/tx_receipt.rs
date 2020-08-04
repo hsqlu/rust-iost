@@ -1,14 +1,10 @@
 #![allow(dead_code)]
-
 use alloc::collections::btree_map::BTreeMap;
 use alloc::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use crate::error::Error;
-use crate::message::ErrorMessage;
-use crate::receipts::Receipt;
-use crate::status_code::StatusCode;
+use crate::{Error, ErrorMessage, Receipt, StatusCode};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
