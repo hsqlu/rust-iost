@@ -361,8 +361,8 @@ pub fn check_encode_slice_to_fmt(fmt: &mut fmt::Formatter, data: &[u8]) -> fmt::
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::keypair::KeyPair;
     use hex::decode as hex_decode;
-    use crate::keypair::Keypair;
 
     #[test]
     fn test_base58_encode() {

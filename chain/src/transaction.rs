@@ -1,7 +1,9 @@
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use crate::{Action, AmountLimit, NumberBytes, Signature, ReadError, WriteError, TxReceipt, Read, Write};
+use crate::{
+    Action, AmountLimit, NumberBytes, Read, ReadError, Signature, TxReceipt, Write, WriteError,
+};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 

@@ -12,6 +12,7 @@ pub enum Error {
     Secp256k1(secp256k1::Error),
 
     ErrorEd25519(ed25519_dalek::SignatureError),
+    ErrorSecp256k1,
     /// hash error
     Hash(bitcoin_hashes::error::Error),
     /// verify failed
@@ -26,6 +27,7 @@ impl fmt::Display for Error {
             Error::ErrorEd25519(ref e) => f.write_str(&e.to_string()),
             Error::Hash(ref e) => f.write_str(&e.to_string()),
             Error::VerifyFailed => f.write_str("Verify failed"),
+            Error::ErrorSecp256k1 => f.write_str("Secp256k1 failed"),
         }
     }
 }

@@ -1,8 +1,8 @@
 use alloc::string::String;
-use alloc::vec::Vec;
 use alloc::vec;
+use alloc::vec::Vec;
 
-use crate::{NumberBytes, Read, Write, SerializeData};
+use crate::{NumberBytes, Read, SerializeData, Write};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 

@@ -1,9 +1,9 @@
 use alloc::string::{String, ToString};
-use alloc::vec::Vec;
 use alloc::vec;
+use alloc::vec::Vec;
 
+use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, Signature, Write, WriteError};
 use chrono::{SecondsFormat, TimeZone, Utc};
-use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, Write, WriteError, Signature};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
@@ -40,7 +40,10 @@ pub struct Tx {
 impl NumberBytes for Tx {
     #[inline]
     fn num_bytes(&self) -> usize {
-        44 + self.signers.num_bytes() + self.actions.num_bytes() + self.amount_limit.num_bytes() + self.signatures.num_bytes()
+        44 + self.signers.num_bytes()
+            + self.actions.num_bytes()
+            + self.amount_limit.num_bytes()
+            + self.signatures.num_bytes()
     }
 }
 
@@ -116,13 +119,12 @@ impl Read for Tx {
             amount_limit,
             signatures,
             publisher: "".to_string(),
-            publisher_sigs: vec![]
+            publisher_sigs: vec![],
         })
     }
 }
 
 impl Write for Tx {
-
     #[inline]
     fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.time.clone().write(bytes, pos);
@@ -155,7 +157,7 @@ impl Tx {
             publisher: "".to_string(),
             publisher_sigs: vec![],
             signers: vec![],
-            signatures: vec![]
+            signatures: vec![],
         }
     }
 
@@ -172,11 +174,14 @@ impl Tx {
             delay: 0,
             chain_id: 0,
             actions,
-            amount_limit: vec![AmountLimit{token: String::from("*"), value: String::from("unlimited") }],
+            amount_limit: vec![AmountLimit {
+                token: String::from("*"),
+                value: String::from("unlimited"),
+            }],
             publisher: "".to_string(),
             publisher_sigs: vec![],
             signers: vec![],
-            signatures: vec![]
+            signatures: vec![],
         }
     }
 
@@ -192,10 +197,15 @@ impl Tx {
     // t.PublisherSigs = []*rpcpb.Signature{publishSig}
     // }
     // return t, nil
-    pub fn sign(&mut self, account_name: String, algorithm: String) -> Result<(), WriteError> {
-        self.publisher = account_name;
+    pub fn sign_tx(&mut self, kps: Vec<Signature>, signer: Signature) -> Result<(), WriteError> {
+        self.signatures.push(signer);
+
+        for kp in kps {
+            // let sig = kp.sign(tx.publish_hash());
+        }
+        // self.publisher = account_name;
         if self.publisher_sigs.len() == 0 {
-            let mut bytes: Vec<u8>= Vec::new();
+            let mut bytes: Vec<u8> = Vec::new();
             bytes.resize(self.num_bytes(), 0);
             self.write(&mut *bytes, &mut (0 as usize))?;
             // sha3::digest(bytes);
@@ -205,9 +215,9 @@ impl Tx {
             // hasher::input(bytes.as_slice());
             // let result = hasher.result();
             self.publisher_sigs = vec![Signature {
-                algorithm,
+                algorithm: "".to_string(),
                 signature: "".to_string(),
-                public_key: "".to_string()
+                public_key: "".to_string(),
             }]
         }
         Ok(())
