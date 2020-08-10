@@ -509,15 +509,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "iost-key"
-version = "0.1.0"
-dependencies = [
- "base58",
- "ed25519-dalek",
- "rand",
-]
-
-[[package]]
 name = "iost-keys"
 version = "0.1.0"
 dependencies = [

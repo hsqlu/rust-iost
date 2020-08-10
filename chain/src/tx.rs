@@ -7,7 +7,7 @@ use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, Write, WriteError
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
-use std::time::SystemTime;
+// use std::time::SystemTime;
 #[derive(Clone, Default, Debug)]
 #[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
 pub struct Tx {
@@ -160,7 +160,8 @@ impl Tx {
     }
 
     pub fn from_action(actions: Vec<Action>) -> Self {
-        let time = Utc::now().timestamp();
+        // let time = Utc::now().timestamp();
+        let time: i64 = 0;
         let expiration = time + 90000000000;
 
         Tx {
