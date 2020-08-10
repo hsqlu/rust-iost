@@ -1,7 +1,9 @@
+use crate::time_point::TimePoint;
 use crate::{Action, AmountLimit, Tx};
 use base58::{FromBase58, ToBase58};
 use chrono::{DateTime, TimeZone, Timelike, Utc};
 use keys::algorithm;
+
 #[test]
 fn it_works() {
     let action = Action::new(
@@ -15,7 +17,7 @@ fn it_works() {
     };
     let time = Utc::now().nanosecond();
     let tx = Tx {
-        time: 0,
+        time: TimePoint::now().as_i64(),
         expiration: 0,
         gas_ratio: 100.0,
         gas_limit: 6000000.0,

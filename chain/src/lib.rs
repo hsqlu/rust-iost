@@ -25,8 +25,8 @@ pub mod signature;
 pub mod status;
 pub mod status_code;
 pub mod test;
+pub mod time_point;
 pub mod transaction;
-
 pub mod tx;
 pub mod tx_receipt;
 pub mod tx_response;
