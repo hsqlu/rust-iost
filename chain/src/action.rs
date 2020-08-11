@@ -13,19 +13,18 @@ use serde::{
 };
 #[cfg(feature = "std")]
 use serde_json::to_string as json_to_string;
-// #[cfg(feature = "std")]
-// use std::io::Write;
+use base58::ToBase58;
 
 #[derive(Clone, Default, Debug, Read, Write, PartialEq, NumberBytes, SerializeData)]
 #[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct Action {
     /// contract name
-    pub contract: String,
+    pub contract: Vec<u8>,
     /// function name of the contract
-    pub action_name: String,
+    pub action_name: Vec<u8>,
     /// Specific parameters of the call. Put every parameter in an array, and JSON-serialize this array. It may looks like ["a_string", 13]
-    pub data: String,
+    pub data: Vec<u8>,
 }
 
 #[cfg(feature = "std")]
@@ -68,9 +67,9 @@ impl<'de> serde::Deserialize<'de> for Action {
                     }
                 }
                 let action = Action {
-                    contract,
-                    action_name,
-                    data,
+                    contract: contract.into_bytes(),
+                    action_name: action_name.into_bytes(),
+                    data: data.into_bytes(),
                 };
                 Ok(action)
             }
@@ -82,9 +81,9 @@ impl<'de> serde::Deserialize<'de> for Action {
 impl Action {
     pub fn new(contract: String, action_name: String, data: String) -> Self {
         Action {
-            contract,
-            action_name,
-            data,
+            contract: contract.into_bytes(),
+            action_name: action_name.into_bytes(),
+            data: data.into_bytes(),
         }
     }
 
@@ -96,9 +95,9 @@ impl Action {
     ) -> crate::Result<Self> {
         let data = serde_json::to_string(&action_transfer).unwrap();
         Ok(Action {
-            contract,
-            action_name,
-            data,
+            contract: contract.into_bytes(),
+            action_name: action_name.into_bytes(),
+            data: data.into_bytes(),
         })
     }
 
@@ -133,7 +132,7 @@ impl core::fmt::Display for Action {
             "contract: {}\n\
             action_name: {}\n\
             data: {}",
-            self.contract, self.action_name, self.data,
+            self.contract.to_base58(), self.action_name.to_base58(), self.data.to_base58(),
         )
     }
 }
@@ -190,9 +189,9 @@ pub trait ToAction: Write + NumberBytes {
         // self.write(&mut data, &mut 0).unwrap();
 
         Ok(Action {
-            contract,
-            action_name,
-            data,
+            contract: contract.into_bytes(),
+            action_name: action_name.into_bytes(),
+            data: data.into_bytes(),
         })
     }
 }
@@ -202,9 +201,9 @@ impl FromStr for Action {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Action {
-            contract: s.to_string(),
-            action_name: s.to_string(),
-            data: s.to_string(),
+            contract: s.to_string().into_bytes(),
+            action_name: s.to_string().into_bytes(),
+            data: s.to_string().into_bytes(),
         })
     }
 }
@@ -216,9 +215,9 @@ mod test {
     #[test]
     fn test_action() {
         let action = Action {
-            contract: "iost".to_string(),
-            action_name: "iost".to_string(),
-            data: "".to_string(),
+            contract: "iost".to_string().into_bytes(),
+            action_name: "iost".to_string().into_bytes(),
+            data: "".to_string().into_bytes(),
         };
         dbg!(action);
     }
@@ -233,6 +232,7 @@ mod test {
         }
         "#;
         let result_action: Result<Action, _> = serde_json::from_str(action_str);
-        assert!(result_action.is_err());
+        dbg!(result_action);
+        // assert!(result_action.is_err());
     }
 }

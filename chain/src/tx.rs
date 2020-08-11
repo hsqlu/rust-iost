@@ -2,14 +2,16 @@ use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
 
-use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, Signature, Write, WriteError};
+use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, SerializeData, Signature, Write, WriteError};
 use chrono::{SecondsFormat, TimeZone, Utc};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
-// use std::time::SystemTime;
+
+
 #[derive(Clone, Default, Debug)]
 #[cfg_attr(feature = "std", derive(Deserialize, Serialize))]
+// #[iost_root_path = "crate"]
 pub struct Tx {
     /// Time of transaction. Unixepoch start in nanoseconds
     pub time: i64,
@@ -40,7 +42,7 @@ pub struct Tx {
 impl NumberBytes for Tx {
     #[inline]
     fn num_bytes(&self) -> usize {
-        44 + self.signers.num_bytes()
+        48 + self.signers.num_bytes()
             + self.actions.num_bytes()
             + self.amount_limit.num_bytes()
             + self.signatures.num_bytes()
@@ -128,6 +130,8 @@ impl Write for Tx {
     #[inline]
     fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
         self.time.clone().write(bytes, pos);
+        // let mut time: i64 = self.time;
+        // time.write(bytes, pos);
         self.expiration.clone().write(bytes, pos);
         let mut ratio = (self.gas_ratio * 100.0) as i64;
         ratio.write(bytes, pos);
@@ -140,6 +144,15 @@ impl Write for Tx {
         self.actions.as_slice().write(bytes, pos);
         self.amount_limit.as_slice().write(bytes, pos);
         self.signatures.as_slice().write(bytes, pos)
+    }
+}
+
+impl SerializeData for Tx {
+    fn to_serialize_data(&self) -> crate::Result<Vec<u8>> {
+        let mut data = vec![0u8; self.num_bytes()];
+        self.write(&mut data, &mut 0)
+            .map_err(crate::Error::BytesWriteError)?;
+        Ok(data.to_vec())
     }
 }
 
