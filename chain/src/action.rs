@@ -3,7 +3,7 @@ use alloc::vec::Vec;
 use alloc::{format, vec};
 
 use crate::Error::JsonParserError;
-use crate::{AccountName, Error, NumberBytes, Read, ReadError, SerializeData, Write};
+use crate::{AccountName, Error, NumberBytes, Read, ReadError, SerializeData, Write, WriteError};
 use base58::ToBase58;
 use codec::{Decode, Encode};
 use core::str::FromStr;
@@ -15,9 +15,7 @@ use serde::{
 #[cfg(feature = "std")]
 use serde_json::to_string as json_to_string;
 
-#[derive(
-    Clone, Default, Debug, Read, Write, PartialEq, Encode, Decode, NumberBytes, SerializeData,
-)]
+#[derive(Clone, Default, Debug, PartialEq, Encode, Decode, SerializeData)]
 #[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct Action {
@@ -27,6 +25,44 @@ pub struct Action {
     pub action_name: Vec<u8>,
     /// Specific parameters of the call. Put every parameter in an array, and JSON-serialize this array. It may looks like ["a_string", 13]
     pub data: Vec<u8>,
+}
+
+impl NumberBytes for Action {
+    #[inline]
+    fn num_bytes(&self) -> usize {
+        12 + self.contract.num_bytes() + self.action_name.num_bytes() + self.data.num_bytes()
+    }
+}
+
+impl Read for Action {
+    #[inline]
+    fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
+        let _contract_bits = usize::read(bytes, pos)?;
+        let contract = Vec::read(bytes, pos)?;
+        let _action_name_bits = usize::read(bytes, pos)?;
+        // let mut action_name: Vec<u8> = Vec::new();
+        let action_name = Vec::read(bytes, pos)?;
+        let _data_bits = usize::read(bytes, pos)?;
+        let data = Vec::read(bytes, pos)?;
+
+        Ok(Action {
+            contract,
+            action_name,
+            data,
+        })
+    }
+}
+
+impl Write for Action {
+    #[inline]
+    fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
+        self.contract.len().write(bytes, pos);
+        self.contract.write(bytes, pos);
+        self.action_name.len().write(bytes, pos);
+        self.action_name.write(bytes, pos);
+        self.data.len().write(bytes, pos);
+        self.data.write(bytes, pos)
+    }
 }
 
 #[cfg(feature = "std")]
