@@ -2,12 +2,13 @@ use alloc::string::{String, ToString};
 use alloc::vec;
 use alloc::vec::Vec;
 
-use crate::{Action, AmountLimit, NumberBytes, Read, ReadError, SerializeData, Signature, Write, WriteError};
+use crate::{
+    Action, AmountLimit, NumberBytes, Read, ReadError, SerializeData, Signature, Write, WriteError,
+};
 use chrono::{SecondsFormat, TimeZone, Utc};
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
-
 
 #[derive(Clone, Default, Debug)]
 #[cfg_attr(feature = "std", derive(Deserialize, Serialize))]

@@ -3,7 +3,8 @@ use alloc::vec::Vec;
 use alloc::{format, vec};
 
 use crate::Error::JsonParserError;
-use crate::{AccountName, Error, NumberBytes, Read, SerializeData, Write};
+use crate::{AccountName, Error, NumberBytes, Read, ReadError, SerializeData, Write};
+use base58::ToBase58;
 use codec::{Decode, Encode};
 use core::str::FromStr;
 #[cfg(feature = "std")]
@@ -13,9 +14,10 @@ use serde::{
 };
 #[cfg(feature = "std")]
 use serde_json::to_string as json_to_string;
-use base58::ToBase58;
 
-#[derive(Clone, Default, Debug, Read, Write, PartialEq, NumberBytes, SerializeData)]
+#[derive(
+    Clone, Default, Debug, Read, Write, PartialEq, Encode, Decode, NumberBytes, SerializeData,
+)]
 #[cfg_attr(feature = "std", derive(Serialize))]
 #[iost_root_path = "crate"]
 pub struct Action {
@@ -79,11 +81,11 @@ impl<'de> serde::Deserialize<'de> for Action {
 }
 
 impl Action {
-    pub fn new(contract: String, action_name: String, data: String) -> Self {
+    pub fn new(contract: Vec<u8>, action_name: Vec<u8>, data: Vec<u8>) -> Self {
         Action {
-            contract: contract.into_bytes(),
-            action_name: action_name.into_bytes(),
-            data: data.into_bytes(),
+            contract,
+            action_name,
+            data,
         }
     }
 
@@ -132,7 +134,9 @@ impl core::fmt::Display for Action {
             "contract: {}\n\
             action_name: {}\n\
             data: {}",
-            self.contract.to_base58(), self.action_name.to_base58(), self.data.to_base58(),
+            self.contract.to_base58(),
+            self.action_name.to_base58(),
+            self.data.to_base58(),
         )
     }
 }

@@ -1,18 +1,18 @@
 use crate::time_point::TimePoint;
-use crate::{Action, AmountLimit, Tx, Read, Result, NumberBytes, Write, SerializeData};
+use crate::{Action, AmountLimit, NumberBytes, Read, Result, SerializeData, Tx, Write};
 use base58::{FromBase58, ToBase58};
-use chrono::{DateTime, TimeZone, Timelike, Utc, Duration};
+use chrono::{DateTime, Duration, TimeZone, Timelike, Utc};
 use keys::algorithm;
 
 #[test]
 fn it_works() {
     let action = Action::new(
-        String::from("token.iost"),
-        String::from("transfer"),
-        String::from(r#"["iost","admin","lispczz","10.12034123",""]"#),
+        String::from("token.iost").into_bytes(),
+        String::from("transfer").into_bytes(),
+        String::from(r#"["iost","admin","lispczz","10.12034123",""]"#).into_bytes(),
     );
     let result: Result<Vec<u8>> = action.to_serialize_data();
-    assert!(result.is_ok());
+    dbg!(result.unwrap());
 
     // let amount_limit = AmountLimit {
     //     token: "*".to_string(),

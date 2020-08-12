@@ -1,9 +1,6 @@
-#![allow(unused_imports)]
-use crate::unsigned_int::UnsignedInt;
+use crate::UnsignedInt;
 use alloc::string::String;
 use alloc::vec::Vec;
-
-// use iost_derive::{Read, Write};
 
 /// Count the number of bytes a type is expected to use.
 pub trait NumberBytes {
@@ -55,23 +52,8 @@ macro_rules! impl_num {
             #[inline]
             fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
                 let width: usize = $s;
-                let mut num = <Self as From<u8>>::from(0_u8);
-                // let mut vec = vec![];
-                // for i in 0..width {
-                //     vec.push(i);
-                // }
-                // vec.reverse();
-                // for j in vec.iter() {
-                //     match bytes.get(*pos) {
-                //         Some(b) => {
-                //             let shift = <Self as From<u8>>::from(*j as u8).saturating_mul(<Self as From<u8>>::from(8_u8));
-                //             num |= <Self as From<u8>>::from(*b) << shift;
-                //         }
-                //         None => return Err(ReadError::NotEnoughBytes),
-                //     }
-                //     *pos = pos.saturating_add(1);
-                // }
 
+                let mut num = <Self as From<u8>>::from(0_u8);
                 for i in 0..width {
                     match bytes.get(*pos) {
                         Some(b) => {
@@ -92,21 +74,6 @@ macro_rules! impl_num {
             fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
                 let width: usize = $s;
                 let ff = <Self as From<u8>>::from(0xff);
-                // let mut vec = vec![];
-                // for i in 0..width {
-                //     vec.push(i);
-                // }
-                // vec.reverse();
-                // for j in vec.iter() {
-                //     match bytes.get_mut(*pos) {
-                //         Some(byte) => {
-                //             let shift = <Self as From<u8>>::from(*j as u8).saturating_mul(<Self as From<u8>>::from(8_u8));
-                //             *byte = ((*self >> shift) & ff) as u8;
-                //         }
-                //         None => return Err(WriteError::NotEnoughSpace),
-                //     }
-                //     *pos = pos.saturating_add(1);
-                // }
 
                 for i in 0..width {
                     // TODO rework this to dynamically allocate?
@@ -248,8 +215,7 @@ impl Read for usize {
 impl Write for usize {
     #[inline]
     fn write(&self, bytes: &mut [u8], pos: &mut usize) -> Result<(), WriteError> {
-        let u32_bytes = *self as u32;
-        u32_bytes.write(bytes, pos)
+        UnsignedInt::from(*self).write(bytes, pos)
     }
 }
 
@@ -269,13 +235,16 @@ where
 {
     #[inline]
     fn read(bytes: &[u8], pos: &mut usize) -> Result<Self, ReadError> {
-        let capacity = u32::read(bytes, pos)?;
+        let capacity = usize::read(bytes, pos)?;
+
         let mut results = Self::new();
-        results.resize(capacity as usize, T::default());
+        results.resize(capacity, T::default());
+
         for item in &mut results {
             let r = T::read(bytes, pos)?;
             *item = r;
         }
+
         Ok(results)
     }
 }
@@ -589,6 +558,7 @@ macro_rules! impl_array {
         {
             #[inline]
             fn num_bytes(&self) -> usize {
+                // let mut count = 1;
                 let mut count = 0;
                 for item in self.iter() {
                     count += item.num_bytes();
@@ -641,7 +611,8 @@ impl_array! {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::*;
+    use alloc::string::{String, ToString};
 
     macro_rules! test_type {
         ($($i:ident, $t:ty, $e:expr)*) => ($(
@@ -708,6 +679,55 @@ mod tests {
         test_f64, f64, -0.12345_f64
     );
 
+    // #[test]
+    // fn test_struct_named_fields() {
+    //     #[derive(Read, Write, PartialEq, Debug)]
+    //     struct Thing {
+    //         a: u64,
+    //         b: u64,
+    //         c: u32,
+    //     }
+
+    //     let thing1 = Thing { a: 1, b: 2, c: 3 };
+
+    //     let mut bytes = [0u8; 100];
+    //     let mut write_pos = 0;
+    //     thing1.write(&mut bytes, &mut write_pos).unwrap();
+    //     assert_eq!(write_pos, 20);
+
+    //     let mut read_pos = 0;
+    //     let thing2 = Thing::read(&bytes, &mut read_pos).unwrap();
+    //     assert_eq!(read_pos, write_pos);
+
+    //     assert_eq!(thing1, thing2);
+    //     assert_eq!(thing1.a, 1);
+    //     assert_eq!(thing1.b, 2);
+    //     assert_eq!(thing1.c, 3);
+    // }
+
+    // #[test]
+    // fn test_struct_unnamed_fields() {
+    //     #[derive(Read, Write, PartialEq, Debug)]
+    //     struct Thing(u64, u64, u32);
+
+    //     let thing1 = Thing(1, 2, 3);
+
+    //     let mut bytes = [0u8; 100];
+
+    //     let mut write_pos = 0;
+    //     thing1.write(&mut bytes, &mut write_pos).unwrap();
+    //     assert_eq!(write_pos, 20);
+
+    //     let mut read_pos = 0;
+    //     let thing2 = Thing::read(&bytes, &mut read_pos).unwrap();
+    //     assert_eq!(read_pos, write_pos);
+
+    //     assert_eq!(thing1, thing2);
+    //     assert_eq!(thing1.0, 1);
+    //     assert_eq!(thing1.1, 2);
+    //     assert_eq!(thing1.2, 3);
+    // }
+
     #[test]
     #[allow(clippy::result_unwrap_used)]
     fn test_read_pos() {
@@ -760,42 +780,5 @@ mod tests {
 
         1_u64.write(bytes, &mut pos).unwrap();
         assert_eq!(pos, 15);
-    }
-
-    #[test]
-    #[allow(clippy::result_unwrap_used)]
-    fn test_iost_binary_serialization_should_be_ok() {
-        let bytes: &[u8] = &[0, 0, 0, 0, 0, 0, 3, 255];
-        let mut pos = 0;
-        let a = u64::read(bytes, &mut pos).unwrap();
-        assert_eq!(a, 1023);
-        assert_eq!(pos, 8);
-    }
-
-    #[test]
-    fn test_iost_string_binary_serialization_should_be_ok() {
-        let serialize_bytes = &mut [0u8; 100];
-        let mut pos = 0;
-        let serialize_string = "iost".to_owned();
-        String::write(&serialize_string, serialize_bytes, &mut pos).unwrap();
-        assert_eq!(pos, 8);
-
-        let deserialize_bytes: &[u8] = &[0, 0, 0, 4, 105, 111, 115, 116];
-        let mut pos = 0;
-        let deserialize_string = String::read(deserialize_bytes, &mut pos).unwrap();
-        assert_eq!(deserialize_string, "iost");
-        assert_eq!(pos, 8);
-    }
-
-    #[test]
-    fn test_iost_array_binary_serialization_should_be_ok() {
-        let arr: Vec<u8> = vec![
-            0, 0, 0, 2, 0, 0, 0, 4, 105, 111, 115, 116, 0, 0, 0, 4, 105, 111, 115, 116,
-        ];
-        let mut pos = 0;
-        let vec: Vec<String> = Vec::read(arr.as_ref(), &mut pos).unwrap();
-        let local_vec = vec!["iost", "iost"];
-        assert_eq!(pos, 20);
-        assert_eq!(vec, local_vec);
     }
 }
